@@ -43,21 +43,20 @@ for file in os.listdir(input_folder_path):
         with open(file_path, 'r', encoding=encoding, errors='ignore') as text_file:
             lines = text_file.readlines()  # Read the file line-by-line to maintain the original format
 
-        # Process each line to remove stop words, keeping original spacing
+        # Process each line to remove stop words, keeping original tab spacing and structure
         for line in lines:
-            words = word_tokenize(line)
-            filtered_words = [word for word in words if word.lower() not in stop_words]
+            # Split line into sections using tabs
+            sections = line.split("\t")
 
-            # Rebuild the line by maintaining the original space count and structure
-            filtered_line = ""
-            word_idx = 0  # Track word positions to replace original words with filtered ones
-            for token in line.split():  # Iterate through the original line's tokens
-                if word_idx < len(filtered_words) and filtered_words[word_idx] == token:
-                    filtered_line += filtered_words[word_idx] + " "
-                    word_idx += 1
-                else:
-                    filtered_line += token + " "
+            # Process only the sections containing text (review title and body)
+            for i in range(len(sections)):
+                if i > 0:  # Skip first section if it is a date
+                    words = word_tokenize(sections[i])
+                    filtered_words = [word for word in words if word.lower() not in stop_words]
+                    sections[i] = " ".join(filtered_words)  # Rebuild the section with filtered words
 
+            # Reconstruct the line with preserved tab spacing
+            filtered_line = "\t".join(sections)
             all_filtered_text.append(filtered_line.strip() + "\n")  # Retain newline at the end of each line
 
         # Write the filtered text to a new file (stop words removed)
@@ -75,16 +74,28 @@ for file in os.listdir(input_folder_path):
         # spaCy processing
         doc = nlp(stop_text)
 
-        # Extract lemmatized words while keeping original formatting
+
+
+  
+
+        # Extract lemmatized words while keeping original formatting and adding spaces as needed
         lemmatized_text = []
+        previous_token_was_space = False
+
         for token in doc:
             if token.is_space:
                 lemmatized_text.append(token.text)  # Preserve spaces
+                previous_token_was_space = True
             else:
-                lemmatized_text.append(token.lemma_)
+                if previous_token_was_space or len(lemmatized_text) == 0:
+                    lemmatized_text.append(token.lemma_)
+    
 
         # Join the lemmatized tokens while keeping the original spaces
-        lemmatized_output_text = ''.join(lemmatized_text)
+        lemmatized_output_text = " ".join(lemmatized_text)
+
+
+
 
         # Define new output path for lemmatized stop word filtered text
         lemmatized_output_file_name = f"{os.path.splitext(file)[0]}_lemmatized_filtered.txt"

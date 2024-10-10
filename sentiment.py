@@ -12,19 +12,45 @@ sia = SentimentIntensityAnalyzer()
 input_folder_path = os.path.join(".", "preprocessed_files")
 output_folder_path = os.path.join(".", "analysed_files")
 
+# Function to analyze sentiment for a given text
+def analyze_sentiment(text):
+    # Get sentiment scores
+    scores = sia.polarity_scores(text)
+    return scores
 
+# Loop through each file in the input folder
 for file in os.listdir(input_folder_path):
-    file_path=os.path.join(input_folder_path, file)
+    file_path = os.path.join(input_folder_path, file)
 
-    def analyze_sentiment(text):
-        # Get sentiment scores
-        scores = sia.polarity_scores(text)
-        return scores
+    with open(file_path, 'r', encoding='utf-8') as f:
+        text = f.read()
 
-    with open(file_path, 'r', encoding='utf-8') as file:
-        text = file.read()
+    # Split text into paragraphs
+    paragraphs = text.split('\t')  # Assuming paragraphs are separated by two newlines
 
-    sentiment_scores = analyze_sentiment(text)
+    # Analyze sentiment for each paragraph
+    paragraph_scores = []
+    for i, paragraph in enumerate(paragraphs):
+        if paragraph.strip():  # Skip empty paragraphs
+            scores = analyze_sentiment(paragraph)
+            paragraph_scores.append((i, scores))
+            print(f"Paragraph {i + 1} Scores: {scores}")
 
 
-print(f"Sentiment Scores for document as a whole {sentiment_scores}\n")
+    sentances = text.split('.')
+
+    sentance_scores=[]
+
+    for i, sentance in enumerate(sentances):
+        if sentance.strip():
+            scores = analyze_sentiment(sentance)
+            sentance_scores.append((i,scores))
+            print(f"Sentance {i + 1} Scores: {scores}")
+
+    # Output sentiment scores for each paragraph
+    output_file_path = os.path.join(output_folder_path, f"analysed_{file}")
+    with open(output_file_path, 'w', encoding='utf-8') as output_file:
+        for para_index, scores in paragraph_scores:
+            output_file.write(f"Paragraph {para_index + 1} Scores: {scores}\n")
+
+    print(f"Sentiment analysis completed for file: {file}\n")

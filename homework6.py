@@ -15,7 +15,7 @@ nltk.download('punkt_tab')
 
 # Define input and output paths
 input_folder_path = os.path.join(".", "input")
-output_folder_path = os.path.join(".", "output")
+output_folder_path = os.path.join(".", "preprocessed_files")
 
 #load spacy model
 nlp = spacy.load("en_core_web_sm")

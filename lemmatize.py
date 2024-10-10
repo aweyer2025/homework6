@@ -7,7 +7,7 @@ nlp = spacy.load("en_core_web_sm")
 
 # Define file paths
 input_folder_path = os.path.join(".", "input")
-output_folder_path = os.path.join(".", "output")
+output_folder_path = os.path.join(".", "preprocessed_files")
 
 # Define specific input and output files
 input_file = os.path.join(input_folder_path, "uk_england_london_britannia_international_hotel")  # Specify the actual file name
