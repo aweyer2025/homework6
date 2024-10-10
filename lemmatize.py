@@ -1,15 +1,17 @@
 import spacy
+import os
 import chardet
 
 # Load the spaCy language model
 nlp = spacy.load("en_core_web_sm")
 
 # Define file paths
-input_file = "/home/aweyer/my_windows_folder/SQL_Projects/Homework6/input/uk_england_london_britannia_international_hotel"   # Replace with your input file path
-output_file = "/home/aweyer/my_windows_folder/SQL_Projects/Homework6/output/output.txt"  # Replace with your desired output file path
+input_folder_path = os.path.join(".", "input")
+output_folder_path = os.path.join(".", "output")
 
-
-import chardet
+# Define specific input and output files
+input_file = os.path.join(input_folder_path, "uk_england_london_britannia_international_hotel")  # Specify the actual file name
+output_file = os.path.join(output_folder_path, "lemmatized_output.txt")
 
 # Detect the file's encoding
 with open(input_file, 'rb') as file:
@@ -23,7 +25,6 @@ encoding = result['encoding']
 # Read the file with the detected encoding
 with open(input_file, 'r', encoding=encoding) as file:
     text = file.read()
-
 
 # Process the text using spaCy
 doc = nlp(text)

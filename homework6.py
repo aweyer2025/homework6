@@ -14,8 +14,8 @@ nltk.download('wordnet')
 nltk.download('punkt_tab')
 
 # Define input and output paths
-input_folder_path = r"/home/aweyer/my_windows_folder/SQL_Projects/Homework6/input/"
-output_folder_path = r"/home/aweyer/my_windows_folder/SQL_Projects/Homework6/output/"
+input_folder_path = os.path.join(".", "input")
+output_folder_path = os.path.join(".", "output")
 
 #load spacy model
 nlp = spacy.load("en_core_web_sm")

@@ -8,14 +8,17 @@ from nltk.corpus import stopwords
 # Append NLTK data path if necessary
 nltk.data.path.append('/home/aweyer/nltk_data')
 
-# Download necessary NLTK resources
-nltk.download('stopwords', download_dir='/home/aweyer/nltk_data')
-nltk.download('punkt', download_dir='/home/aweyer/nltk_data')
-nltk.download('wordnet', download_dir='/home/aweyer/nltk_data')
+# Define the relative path for the nltk_data folder
+nltk_data_dir = os.path.join(".", "nltk_data")
+
+# Download the nltk packages to the relative folder
+nltk.download('stopwords', download_dir=nltk_data_dir)
+nltk.download('punkt', download_dir=nltk_data_dir)
+nltk.download('wordnet', download_dir=nltk_data_dir)
 
 # Define input and output paths
-input_folder_path = r"/home/aweyer/my_windows_folder/SQL_Projects/Homework6/input/"
-output_folder_path = r"/home/aweyer/my_windows_folder/SQL_Projects/Homework6/output/"
+input_folder_path = os.path.join(".", "input")
+output_folder_path = os.path.join(".", "preprocessed_files")
 
 # Load spaCy model
 nlp = spacy.load("en_core_web_sm")
@@ -40,13 +43,22 @@ for file in os.listdir(input_folder_path):
         with open(file_path, 'r', encoding=encoding, errors='ignore') as text_file:
             lines = text_file.readlines()  # Read the file line-by-line to maintain the original format
 
-        # Process each line to remove stop words
+        # Process each line to remove stop words, keeping original spacing
         for line in lines:
             words = word_tokenize(line)
             filtered_words = [word for word in words if word.lower() not in stop_words]
-            # Join the filtered words back together with spaces and retain the original newline character
-            filtered_line = " ".join(filtered_words)
-            all_filtered_text.append(filtered_line + "\n")
+
+            # Rebuild the line by maintaining the original space count and structure
+            filtered_line = ""
+            word_idx = 0  # Track word positions to replace original words with filtered ones
+            for token in line.split():  # Iterate through the original line's tokens
+                if word_idx < len(filtered_words) and filtered_words[word_idx] == token:
+                    filtered_line += filtered_words[word_idx] + " "
+                    word_idx += 1
+                else:
+                    filtered_line += token + " "
+
+            all_filtered_text.append(filtered_line.strip() + "\n")  # Retain newline at the end of each line
 
         # Write the filtered text to a new file (stop words removed)
         stop_words_output_file_name = f"{os.path.splitext(file)[0]}_removedStopWords.txt"
@@ -63,8 +75,16 @@ for file in os.listdir(input_folder_path):
         # spaCy processing
         doc = nlp(stop_text)
 
-        # Extract lemmatized words
-        lemmatized_text = " ".join([token.lemma_ for token in doc])
+        # Extract lemmatized words while keeping original formatting
+        lemmatized_text = []
+        for token in doc:
+            if token.is_space:
+                lemmatized_text.append(token.text)  # Preserve spaces
+            else:
+                lemmatized_text.append(token.lemma_)
+
+        # Join the lemmatized tokens while keeping the original spaces
+        lemmatized_output_text = ''.join(lemmatized_text)
 
         # Define new output path for lemmatized stop word filtered text
         lemmatized_output_file_name = f"{os.path.splitext(file)[0]}_lemmatized_filtered.txt"
@@ -72,7 +92,7 @@ for file in os.listdir(input_folder_path):
 
         # Write filtered and lemmatized text to a new file
         with open(lemmatized_output_file_path, 'w', encoding='utf-8') as lemmatized_output_file:
-            lemmatized_output_file.write(lemmatized_text)
+            lemmatized_output_file.write(lemmatized_output_text)
 
         print(f"Lemmatized and filtered text has been saved to {lemmatized_output_file_path}")
 
